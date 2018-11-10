@@ -1,4 +1,4 @@
-// $Id$
+﻿// $Id$
 /*
  * Copyright (c) 2011 Bentech
  *
@@ -21,6 +21,11 @@ importPackage(Packages.java.awt);
 importPackage(Packages.com.sk89q.worldedit);
 importPackage(Packages.com.sk89q.worldedit.blocks);
 
+
+var curveThrottle = 10;
+var curveRatio = 0.3;
+
+
 var blocks = context.remember();
 var session = context.getSession();
 var region = session.getRegion();
@@ -28,42 +33,49 @@ var region = session.getRegion();
 // context.checkArgs(1, 1, "<type>");
 context.checkArgs(1, 2, "<type> <type>");
 
-var blocktype = context.getBlock(argv[1]);
-var blocktype2 = context.getBlock(argv[2]);
+//roof block
+var blocktype = context.getBlock(argv[1]); //the block for length
+var blocktype2 = context.getBlock(argv[2]); //the block for width
+//down roof block
+var blocktype3 = context.getBlock('53:1');
+var blocktype3 = context.getBlock('53:1');
 
 // var blocktype = context.getBlock('53:1'); //
 // var blocktype2 = context.getBlock('53:2');  //另一个朝向的楼梯
 
-var cycles = region.getLength()
+var realwidth = Math.min(region.getLength(), region.getWidth());
+var reallength = Math.max(region.getLength(), region.getWidth());
 
-if (region.getWidth() > cycles){
-    cycles = region.getWidth(); //cycles 取 选择区域较长的一边  //屋顶底面不一定是正方形  取较长的一边为边长
-}
 
-cycles = cycles / 2; //长度的一半
-
-var curve = 0;
-if(region.getWidth() > 20){ //此时使用缓坡屋顶
-    curve = 1;
-}
+var loops = realwidth/2;  // cycles = cycles / 2; //长度的一半
+var useCurve = region.getWidth() > curveThrottle ? 1 :0;//此时使用缓坡屋顶
 var curveValue = 2;
-layer = 0;
-for (var c = 0; c < cycles; c++) { //渲染边框次数  
+var height = 0;
+
+
+//draw outerblocks and then inner blocks by loops step by step
+for (var c = 0; c < loops; c++) { //渲染边框次数  
    
-    if(curve && c <= cycles/3 ){
-        if(c%2 ==0){
-            layer++;
-        }
+    if(useCurve && c <= loops * curveRatio ){
+        c%2 == 0 ? height++ : 0;
     }else{
-        layer++;
+        height++;
     }
 
+    forRoof(height)
+    if ( c > 0  && c < 5){
+        forRoof( (height -1 ) * -1)
+    }
+}
 
-    for (var w = 0; w < region.getWidth() - (c * 2); w++) { //屋顶某一层的宽  //每一层宽度都比下面一层少两个(缓坡屋顶少4个)
-        for (var l = 0; l < region.getLength() - (c * 2); l++) {  //屋顶某一层长
+
+function forRoof(layer){
+    
+    for (var w = 0; w < realwidth - (c * 2); w++) { //屋顶某一层的宽  //每一层宽度都比下面一层少两个(缓坡屋顶少4个)
+        for (var l = 0; l < reallength - (c * 2); l++) {  //屋顶某一层长
             
             
-            if (l == 0 || l == (region.getLength() - (c * 2)) - 1) {
+            if (l == 0 || l == (reallength - (c * 2)) - 1) {
                 var vec = new Vector(
                     region.getMinimumPoint().getX() + (w + c),
                     region.getMaximumPoint().getY() + layer,  
@@ -71,7 +83,7 @@ for (var c = 0; c < cycles; c++) { //渲染边框次数
                 
                 blocks.setBlock(vec, blocktype);
             }
-            if (w == 0 || w == (region.getWidth() - (c * 2)) - 1) {    
+            if (w == 0 || w == (realwidth - (c * 2)) - 1) {    
                 var vec = new Vector(
                     region.getMinimumPoint().getX() + (w + c),
                     region.getMaximumPoint().getY() + layer,  //
@@ -79,9 +91,9 @@ for (var c = 0; c < cycles; c++) { //渲染边框次数
                 blocks.setBlock(vec, blocktype2);                
             }
 
-            // //curve
+            //useCurve
             // if(curveValue !=2 ){
-            //     if (l == 1 || l == (region.getLength() - (c * curveValue)) - 2) {
+            //     if (l == 1 || l == (reallength - (c * curveValue)) - 2) {
             //         var vec = new Vector(
             //             region.getMinimumPoint().getX() + (w + c),
             //             region.getMaximumPoint().getY() + c,  //
@@ -89,7 +101,7 @@ for (var c = 0; c < cycles; c++) { //渲染边框次数
                     
             //         blocks.setBlock(vec, blocktype);
             //     }
-            //     if (w == 1 || w == (region.getWidth() - (c * curveValue)) - 2) {    
+            //     if (w == 1 || w == (realwidth - (c * curveValue)) - 2) {    
             //         var vec = new Vector(
             //             region.getMinimumPoint().getX() + (w + c),
             //             region.getMaximumPoint().getY() + c,  //
@@ -102,3 +114,6 @@ for (var c = 0; c < cycles; c++) { //渲染边框次数
 
 }
 
+function forDownRoof(){
+
+}
