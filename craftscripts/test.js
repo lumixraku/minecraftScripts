@@ -18,6 +18,7 @@ var blockQtz = 155;
 var blockQtzWin1 = 156;
 var blockQtzWin2 = 156;
 var blockLight = 89;
+var blockWood = 5;
 
 
 
@@ -37,7 +38,7 @@ class Vector {
 
     getZ() {
         return this.z
-    }    
+    }
 
 }
 
@@ -50,11 +51,11 @@ var region = {
         return constwidth
     },
     getMinimumPoint() {
-        return new Vector(0,0,0)
+        return new Vector(0, 0, 0)
     },
-    getMaximumPoint(){
-        return new Vector(0,0,0)
-    }    
+    getMaximumPoint() {
+        return new Vector(0, 0, 0)
+    }
 }
 
 var blocks = {
@@ -64,18 +65,18 @@ var blocks = {
 
 }
 
-var realwidth = Math.min(region.getLength(), region.getWidth());
-var reallength = Math.max(region.getLength(), region.getWidth());
+var selectedWidth = Math.min(region.getLength(), region.getWidth());
+var selectedLength = Math.max(region.getLength(), region.getWidth());
 
 
-var loops = realwidth/2;  // cycles = cycles / 2; //长度的一半
-var useCurve = region.getWidth() > curveThrottle ? 1 :0;//此时使用缓坡屋顶
+var loops = selectedWidth / 2; // cycles = cycles / 2; //长度的一半
+var useCurve = region.getWidth() > curveThrottle ? 1 : 0; //此时使用缓坡屋顶
 var curveValue = 2;
 var height = 0;
 var roofLowY = 0;
 
 //draw outerblocks and then inner blocks by loops step by step
-for (var c = 0; c < loops; c++) { //渲染边框次数  
+for (var c = 0; c < loops; c++) { //渲染边框次数
 
     if (useCurve && c <= parseInt(loops * curveRatio)) {
         c % 2 == 0 ? height++ : 0;
@@ -95,31 +96,25 @@ drawGround((roofLowY + wallheight) * -1)
 
 function drawRoof(layer, c) {
 
-    for (var w = 0; w < realwidth - (c * 2); w++) { //屋顶某一层的宽  //每一层宽度都比下面一层少两个(缓坡屋顶少4个)
-        for (var l = 0; l < reallength - (c * 2); l++) {  //屋顶某一层长
+    for (var w = 0; w < selectedWidth - (c * 2); w++) { //屋顶某一层的宽  //每一层宽度都比下面一层少两个(缓坡屋顶少4个)
+        for (var l = 0; l < selectedLength - (c * 2); l++) { //屋顶某一层长
 
             if (
-                (l < (reallength - (c * 2)) - 1) && (w < (realwidth - (c * 2)) - 1)
+                (l < (selectedLength - (c * 2)) - 1) && (w < (selectedWidth - (c * 2)) - 1)
             ) {
                 if (Math.random() * lightStep * 10 < 1) {
-                    drawLight(w+c, l+c, layer)
+                    drawLight(w + c, l + c, layer)
                 }
 
             }
-            if (l == 0 || l == (reallength - (c * 2)) - 1) {
-                var vec = new Vector(
-                    region.getMinimumPoint().getX() + (w + c),
-                    region.getMaximumPoint().getY() + layer,
-                    region.getMinimumPoint().getZ() + (l + c));
+            if (l == 0 || l == (selectedLength - (c * 2)) - 1) {
+                var vec = customVec((w + c), (l + c), layer);
 
-                blocks.setBlock(vec, blocktype);
+                blocks.setBlock(vec, blocktype());
             }
-            if (w == 0 || w == (realwidth - (c * 2)) - 1) {
-                var vec = new Vector(
-                    region.getMinimumPoint().getX() + (w + c),
-                    region.getMaximumPoint().getY() + layer,  //
-                    region.getMinimumPoint().getZ() + (l + c));
-                blocks.setBlock(vec, blocktype2);
+            if (w == 0 || w == (selectedWidth - (c * 2)) - 1) {
+                var vec = customVec((w + c), (l + c), layer);
+                blocks.setBlock(vec, blocktype2());
             }
         }
     }
@@ -130,48 +125,70 @@ function drawRoof(layer, c) {
 // y should < 0
 function drawWall(yOrigin, c) {
     var y = yOrigin;
+    var wallWidth = selectedWidth - c * 2;
+    var walllen = selectedLength - c * 2;
 
     for (var i = 0; i < wallheight; i++) {
         y = yOrigin - i;
-        for (var w = 0; w < realwidth - (c * 2); w++) { //屋顶某一层的宽  //每一层宽度都比下面一层少两个(缓坡屋顶少4个)
-            for (var l = 0; l < reallength - (c * 2); l++) {  //屋顶某一层长
+        for (var w = 0; w < selectedWidth - (c * 2); w++) { //屋顶某一层的宽  //每一层宽度都比下面一层少两个(缓坡屋顶少4个)
+            for (var l = 0; l < selectedLength - (c * 2); l++) { //屋顶某一层长
 
-
-                if (l == 0 || l == (reallength - (c * 2)) - 1) {
-                    var vec = new Vector(
-                        region.getMinimumPoint().getX() + (w + c),
-                        region.getMaximumPoint().getY() + y,
-                        region.getMinimumPoint().getZ() + (l + c));
-
+                if (l == 0 || l == (selectedLength - (c * 2)) - 1) {
+                    var vec = customVec(w + c,l + c, y)
                     blocks.setBlock(vec, blockQtzWin2);
                 }
-                if (w == 0 || w == (realwidth - (c * 2)) - 1) {
-                    var vec = new Vector(
-                        region.getMinimumPoint().getX() + (w + c),
-                        region.getMaximumPoint().getY() + y,  //
-                        region.getMinimumPoint().getZ() + (l + c));
+                if (w == 0 || w == (selectedWidth - (c * 2)) - 1) {
+                    var vec = customVec(w + c,l + c, y)
                     blocks.setBlock(vec, blockQtzWin1);
                 }
 
             }
         }
     }
+
+    var lenpoints = [];
+    for(var)
+
 }
 
-function drawLight(width, len, y) {
-    var vec = new Vector(
-        region.getMinimumPoint().getX() + width ,
-        region.getMaximumPoint().getY() + y,
-        region.getMinimumPoint().getZ() + len);
+function drawLight(w, l, y) {
+    var vec = customVec(w, l, y)
+    // var vec = new Vector(
+    //     region.getMinimumPoint().getX() + width ,
+    //     region.getMaximumPoint().getY() + y,
+    //     region.getMinimumPoint().getZ() + len);
     blocks.setBlock(vec, blockLight);
 
 
 }
 
-function drawGround(y){
-    var vec = new Vector(
-        region.getMinimumPoint().getX() + realwidth,
-        region.getMaximumPoint().getY() + y,
-        region.getMinimumPoint().getZ() + reallength);
-    blocks.setBlock(vec, blockQtz);
+function drawGround(y) {
+    for (var w = 0; w <= selectedWidth; w++) {
+        for (var l = 0; l <= selectedLength; l++) {
+
+            // var vec = new Vector(
+            //     region.getMinimumPoint().getX() + w,
+            //     region.getMaximumPoint().getY() + y,
+            //     region.getMinimumPoint().getZ() + l);
+            var vec = customVec(w, l, y)
+            blocks.setBlock(vec, blockQtz);
+        }
+    }
+}
+
+
+function customVec(w, l, y) {
+    if (lwReverse) {
+        var vec = new Vector(
+            region.getMinimumPoint().getX() + l,
+            region.getMaximumPoint().getY() + y,
+            region.getMinimumPoint().getZ() + w);
+        return vec
+    } else {
+        var vec = new Vector(
+            region.getMinimumPoint().getX() + w,
+            region.getMaximumPoint().getY() + y,
+            region.getMinimumPoint().getZ() + l);
+        return vec
+    }
 }

@@ -67,7 +67,7 @@ var blocktype3 = function(){
 }
 var blocktype4 = function(){
     if(lwReverse){
-        return context.getBlock('136:5');    
+        return context.getBlock('136:5');
     }
     return context.getBlock('136:7');
 }
@@ -75,7 +75,7 @@ var blocktype4 = function(){
 var blockQtz = context.getBlock('155');
 var blockQtzWin1 = function(){
     if (lwReverse){
-        return context.getBlock('156:1');    
+        return context.getBlock('156:1');
     }
     return context.getBlock('156:3');
 }
@@ -99,7 +99,7 @@ var height = 0;
 var roofLowY = 0;
 
 //draw outerblocks and then inner blocks by loops step by step
-for (var c = 0; c < loops; c++) { //渲染边框次数  
+for (var c = 0; c < loops; c++) { //渲染边框次数
 
     if (useCurve && c <= parseInt(loops * curveRatio)) {
         c % 2 == 0 ? height++ : 0;
@@ -149,29 +149,11 @@ function drawRoof(layer, c) {
 function drawWall(yOrigin, c) {
     var y = yOrigin;
 
-    for (var i = 0; i < wallheight; i++) {
-        y = yOrigin - i;
-        for (var w = 0; w < realwidth - (c * 2); w++) { //屋顶某一层的宽  //每一层宽度都比下面一层少两个(缓坡屋顶少4个)
-            for (var l = 0; l < reallength - (c * 2); l++) {  //屋顶某一层长
 
-
-                if (l == 0 || l == (reallength - (c * 2)) - 1) {
-                    var vec = customVec((w + c), (l+c), y)
-                    blocks.setBlock(vec, blockQtzWin2());
-                }
-                if (w == 0 || w == (realwidth - (c * 2)) - 1) {
-                    var vec = customVec((w + c), (l+c), y);
-                    blocks.setBlock(vec, blockQtzWin1());
-                   
-                }
-
-            }
-        }
-    }
 }
 
 function drawLight(w, l, y) {
-    var vec = customVec(w ,l, y)    
+    var vec = customVec(w ,l, y)
     // var vec = new Vector(
     //     region.getMinimumPoint().getX() + width ,
     //     region.getMaximumPoint().getY() + y,
