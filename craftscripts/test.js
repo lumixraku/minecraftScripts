@@ -18,6 +18,14 @@ var blockQtz = 155;
 var blockQtzWin1 = 156;
 var blockQtzWin2 = 156;
 var blockLight = 89;
+var blocktype = function(){}
+var blocktype2 = function(){}
+var blocktype3 = function(){}
+var blocktype4 = function(){}
+var blockQtzWin1 = function(){}
+var blockQtzWin2 = function(){}
+var blockLight = 89
+var blockWood = 112
 
 
 
@@ -64,9 +72,11 @@ var blocks = {
 
 }
 
+
+
 var realwidth = Math.min(region.getLength(), region.getWidth());
 var reallength = Math.max(region.getLength(), region.getWidth());
-
+var lwReverse = region.getLength() < region.getWidth()
 
 var loops = realwidth/2;  // cycles = cycles / 2; //长度的一半
 var useCurve = region.getWidth() > curveThrottle ? 1 :0;//此时使用缓坡屋顶
@@ -89,7 +99,10 @@ for (var c = 0; c < loops; c++) { //渲染边框次数
         drawRoof((height - 1) * -1, c)
     }
 }
-drawWall(roofLowY * -1, parseInt(loops * curveRatio))
+
+
+// drawWall(roofLowY * -1, parseInt(loops * curveRatio))
+drawWall(roofLowY * -1, wallshrink)
 drawGround((roofLowY + wallheight) * -1)
 
 
@@ -107,19 +120,13 @@ function drawRoof(layer, c) {
 
             }
             if (l == 0 || l == (reallength - (c * 2)) - 1) {
-                var vec = new Vector(
-                    region.getMinimumPoint().getX() + (w + c),
-                    region.getMaximumPoint().getY() + layer,
-                    region.getMinimumPoint().getZ() + (l + c));
+                var vec = customVec((w + c), (l+c), layer);
 
-                blocks.setBlock(vec, blocktype);
+                blocks.setBlock(vec, blocktype());
             }
             if (w == 0 || w == (realwidth - (c * 2)) - 1) {
-                var vec = new Vector(
-                    region.getMinimumPoint().getX() + (w + c),
-                    region.getMaximumPoint().getY() + layer,  //
-                    region.getMinimumPoint().getZ() + (l + c));
-                blocks.setBlock(vec, blocktype2);
+                var vec = customVec((w + c), (l+c), layer);
+                blocks.setBlock(vec, blocktype2());
             }
         }
     }
@@ -133,45 +140,133 @@ function drawWall(yOrigin, c) {
 
     for (var i = 0; i < wallheight; i++) {
         y = yOrigin - i;
-        for (var w = 0; w < realwidth - (c * 2); w++) { //屋顶某一层的宽  //每一层宽度都比下面一层少两个(缓坡屋顶少4个)
-            for (var l = 0; l < reallength - (c * 2); l++) {  //屋顶某一层长
+        // drawOneLayerBorder(y, reallength, realwidth, function(vec){
+        //     blocks.setBlock(vec, blockQtzWin2());
+        // }, function(vec){
+        //     blocks.setBlock(vec, blockQtzWin1());
+        // })
+        for (var w = c; w < realwidth - c; w++) { //屋顶某一层的宽  //每一层宽度都比下面一层少两个(缓坡屋顶少4个)
+            for (var l = c; l < reallength - c; l++) {  //屋顶某一层长
 
-
-                if (l == 0 || l == (reallength - (c * 2)) - 1) {
-                    var vec = new Vector(
-                        region.getMinimumPoint().getX() + (w + c),
-                        region.getMaximumPoint().getY() + y,
-                        region.getMinimumPoint().getZ() + (l + c));
-
-                    blocks.setBlock(vec, blockQtzWin2);
+                if (l == c || l == (reallength - c) - 1) {
+                    var vec = customVec(w , l, y)
+                    blocks.setBlock(vec, blockQtzWin2());
                 }
-                if (w == 0 || w == (realwidth - (c * 2)) - 1) {
-                    var vec = new Vector(
-                        region.getMinimumPoint().getX() + (w + c),
-                        region.getMaximumPoint().getY() + y,  //
-                        region.getMinimumPoint().getZ() + (l + c));
-                    blocks.setBlock(vec, blockQtzWin1);
+                if (w == c || w == (realwidth - c ) - 1) {
+                    var vec = customVec(w , l, y)
+                    blocks.setBlock(vec, blockQtzWin1());
+                   
                 }
 
             }
         }
     }
+
+    
+    y = yOrigin - 1;
+    for (w = c; w < realwidth - c ; w++) { //屋顶某一层的宽  //每一层宽度都比下面一层少两个(缓坡屋顶少4个)
+        for (l = c; l < reallength - c; l++) {  //屋顶某一层长
+            if (l == c || l == (reallength - c ) - 1) {
+                var vec = customVec(w , l, y)
+                blocks.setBlock(vec, blockWood);
+            }
+            if (w == c || w == (realwidth - c) - 1) {
+                var vec = customVec(w , l, y);
+                blocks.setBlock(vec, blockWood);
+                
+            }
+
+        }
+    }
+
+    var widthHead = c;
+    var widthTail = realwidth -c;
+    var lengthHead = c;
+    var lengthTail = reallength -c;
+
+    // for (; widthHead < widthTail  ; ) { 
+    //     widthHead ++;
+    //     widthTail --;
+        var time = 0;
+        for (; lengthHead < lengthTail ; ) { 
+            lengthHead ++;
+            lengthTail --;
+            time++;
+            if (time % 3 == 0) {
+                var vec = customVec(widthHead , lengthHead, y)
+                blocks.setBlock(vec, blockWood);                
+                vec = customVec(widthHead , lengthTail, y)
+                blocks.setBlock(vec, blockWood);
+            }
+
+
+        }
+    // }
+
+        
+    
 }
 
-function drawLight(width, len, y) {
-    var vec = new Vector(
-        region.getMinimumPoint().getX() + width ,
-        region.getMaximumPoint().getY() + y,
-        region.getMinimumPoint().getZ() + len);
+function drawLight(w, l, y) {
+    var vec = customVec(w ,l, y)    
+    // var vec = new Vector(
+    //     region.getMinimumPoint().getX() + width ,
+    //     region.getMaximumPoint().getY() + y,
+    //     region.getMinimumPoint().getZ() + len);
     blocks.setBlock(vec, blockLight);
 
 
 }
 
 function drawGround(y){
-    var vec = new Vector(
-        region.getMinimumPoint().getX() + realwidth,
-        region.getMaximumPoint().getY() + y,
-        region.getMinimumPoint().getZ() + reallength);
-    blocks.setBlock(vec, blockQtz);
+    for (var w = 0; w <= realwidth; w++){
+        for(var l =0; l <= reallength; l++){
+
+            // var vec = new Vector(
+            //     region.getMinimumPoint().getX() + w,
+            //     region.getMaximumPoint().getY() + y,
+            //     region.getMinimumPoint().getZ() + l);
+            var vec = customVec(w ,l, y)
+            blocks.setBlock(vec, blockQtz);
+        }
+    }
 }
+
+
+function customVec(w ,l, y){
+    if(lwReverse){
+        var vec = new Vector(
+            region.getMinimumPoint().getX() + l,
+            region.getMaximumPoint().getY() + y,
+            region.getMinimumPoint().getZ() + w);
+        return vec
+    }else{
+        var vec = new Vector(
+            region.getMinimumPoint().getX() + w,
+            region.getMaximumPoint().getY() + y,
+            region.getMinimumPoint().getZ() + l);
+        return vec
+    }
+}
+
+
+// function drawOneLayerBorder(h, start , end, cb1, cb2){
+//     var w, l;
+//     for (w = start; w < end - c ; w++) { //屋顶某一层的宽  //每一层宽度都比下面一层少两个(缓坡屋顶少4个)
+//         for (l = start; l < end - c; l++) {  //屋顶某一层长
+//             if (l == start || l == end - 1) {
+//                 var vec = customVec(w , l, h)
+//                 cb1(vec)
+//                 // blocks.setBlock(vec, blockWood);
+//             }
+//             if (w ==  || w == (realwidth - c) - 1) {
+//                 var vec = customVec(w , l, h);
+//                 cb2(vec)
+//                 // blocks.setBlock(vec, blockWood);
+                
+//             }
+
+//         }
+//     }
+
+// }
