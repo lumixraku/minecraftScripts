@@ -20,7 +20,7 @@ importPackage(Packages.java.io);
 importPackage(Packages.java.awt);
 importPackage(Packages.com.sk89q.worldedit);
 importPackage(Packages.com.sk89q.worldedit.blocks);
-
+java.lang.System.out.println("1232313122312321321313") //you can check print message in minecraft log
 
 var curveThrottle = 10;
 var curveRatio = 0.5;
@@ -247,7 +247,8 @@ function drawWall(yOrigin, c) {
         var vec = customVec(widthHead + (widthTail-widthHead)/2, lengthTail, y)
         blocks.setBlock(vec, blockWood);  
         vec = customVec(widthHead + (widthTail-widthHead)/2, lengthHead, y)
-        blocks.setBlock(vec, blockWood);           
+        blocks.setBlock(vec, blockWood);       
+        java.lang.System.out.println("Y:::" + y)    
     }
 }
 
